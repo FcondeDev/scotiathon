@@ -1,0 +1,12 @@
+package com.scotiathon.voucher.entity;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public interface GetBuAndVoucherId {
+
+	String getBu();
+
+	@JsonProperty("voucher_id")
+	String getVoucherId();
+
+}

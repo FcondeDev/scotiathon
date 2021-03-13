@@ -1,0 +1,40 @@
+package com.scotiathon.client.service.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.scotiathon.client.dto.ClientDTO;
+import com.scotiathon.client.dto.RoleDTO;
+import com.scotiathon.client.entity.Client;
+import com.scotiathon.client.entity.Role;
+import com.scotiathon.client.exception.NotFoundException;
+import com.scotiathon.client.repository.ClientRepository;
+import com.scotiathon.client.service.ClientService;
+
+@Service
+public class ClientServiceImpl implements ClientService {
+
+	@Autowired
+	private ClientRepository clientRepository;
+
+	@Override
+	public ClientDTO getClientByMail(String email) {
+		Optional<Client> client = clientRepository.findByEmail(email);
+
+		if (client.isPresent()) {
+			List<RoleDTO> roles = new ArrayList<>();
+			for (Role role : client.get().getRoles()) {
+				roles.add(new RoleDTO(null, role.getName()));
+			}
+			return new ClientDTO(null, email, client.get().getPassword(), client.get().isEnabled(),
+					client.get().getUsername(), roles);
+		} else {
+			throw new NotFoundException();
+		}
+	}
+
+}

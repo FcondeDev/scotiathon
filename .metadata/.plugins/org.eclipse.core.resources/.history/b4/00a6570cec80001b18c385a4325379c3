@@ -1,0 +1,5 @@
+package com.scotiathon.client.config;
+
+public class ClientConfiguration {
+
+}

@@ -1,0 +1,10 @@
+package com.scotiathon.voucher.service;
+
+import java.util.List;
+
+import com.scotiathon.voucher.dto.PassedVoucherDTO;
+
+public interface VoucherAssignmentAndClerkProcessing {
+
+	public List<PassedVoucherDTO> getPassedVouchers();
+}

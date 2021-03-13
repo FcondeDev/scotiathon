@@ -1,0 +1,23 @@
+package com.scotiathon.client.error;
+
+public enum ErrorEnum {
+
+	NOT_FOUND_EXCEPTION(1, "NOT FOUND", "The resource could not be found"),
+	INVALID_PARAMETER(2, "INVALID PARAMETER", "Some of the input parameters are invalid"),
+	DEFAULT_EXCEPTION(3, "UPSS", "Something happened, try later"),
+	PARAMETER_REQUIRED_NOT_FOUND(4, "REQUIRED PARAMETER NOT FOUND",
+			"Input data does not contains a mandatory field"),
+	USER_BLOCKED(5, "USER BLOCKED",
+			"You have been blocked, please contact you administrator");
+
+	public final int code;
+	public final String title;
+	public final String description;
+
+	ErrorEnum(int code, String title, String description) {
+		this.code = code;
+		this.title = title;
+		this.description = description;
+	}
+
+}

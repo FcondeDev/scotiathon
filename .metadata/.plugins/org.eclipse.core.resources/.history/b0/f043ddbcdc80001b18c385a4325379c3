@@ -1,0 +1,5 @@
+package com.scotiathon.voucher.service.dto;
+
+public class VoucherValidationDTO {
+
+}

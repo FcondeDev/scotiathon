@@ -1,0 +1,40 @@
+package com.scotiathon.voucher.entity;
+
+import java.sql.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import lombok.Data;
+
+@Data
+@Table(name = "archivo_peoplesoft")
+@Entity
+public class Vourcher {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	private String bu;
+	@Column(name = "voucher_id")
+	private String voucherId;
+	@Column(name = "lines_entered")
+	private int linesEntered;
+	@Column(name = "voucher_source")
+	private String voucherSource;
+	@Column(name = "voucher_created_by")
+	private String voucherCreatedBy;
+	@Column(name = "voucher_created_on")
+	private Date voucherCreatedOn;
+	@Column(name = "lines_entered")
+	private int linesEntered;
+	@Column(name = "lines_entered")
+	private int linesEntered;
+	@Column(name = "lines_entered")
+	private int linesEntered;
+
+}

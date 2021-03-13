@@ -1,0 +1,10 @@
+package com.scotiathon.voucher.entity;
+
+import javax.persistence.Column;
+
+public interface GetBuAndVoucherId {
+	String getBu();
+
+	@Column(name = "voucher_id")
+	String getVoucherId();
+}

@@ -1,0 +1,73 @@
+package com.scotiathon.gateway.filters;
+
+import java.util.logging.Level;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.exception.ZuulException;
+import com.scotiathon.gateway.dto.ApiErrorDTO;
+
+import lombok.extern.java.Log;
+
+@Component
+@Log
+public class ErrorFilter extends ZuulFilter {
+
+	@Autowired
+	private ObjectMapper objectMapper;
+
+	private static final String FILTER_TYPE = "error";
+	private static final String THROWABLE_KEY = "throwable";
+	private static final int FILTER_ORDER = -1;
+	private static final String ERROR_DESCRIPTION = "ERROR IN ZUUL REQUEST : %s";
+	private static final String ERROR_TITLE = "ZUUL EXCEPTION";
+	private static final int ERORR_CODE = 1;
+
+	@Override
+	public String filterType() {
+		return FILTER_TYPE;
+	}
+
+	@Override
+	public int filterOrder() {
+		return FILTER_ORDER;
+	}
+
+	@Override
+	public boolean shouldFilter() {
+		return true;
+	}
+
+	@Override
+	public Object run() {
+		final RequestContext context = RequestContext.getCurrentContext();
+		final Object throwable = context.get(THROWABLE_KEY);
+
+		if (throwable instanceof ZuulException) {
+			final ZuulException zuulException = (ZuulException) throwable;
+			log.log(Level.SEVERE, "Zuul error: ", throwable);
+			log.severe(String.format("Error in the request : %s", zuulException.getMessage()));
+			context.remove(THROWABLE_KEY);
+			ApiErrorDTO apiErrorDTO = new ApiErrorDTO(ERORR_CODE, ERROR_TITLE,
+					String.format(ERROR_DESCRIPTION, zuulException.getMessage()));
+			createErrorResponse(apiErrorDTO, context);
+			context.getResponse().setContentType("application/json");
+			context.setResponseStatusCode(500);
+		}
+		return null;
+	}
+
+	private void createErrorResponse(ApiErrorDTO apiErrorDTO, RequestContext context) {
+		try {
+			context.setResponseBody(objectMapper.writeValueAsString(apiErrorDTO));
+		} catch (JsonProcessingException e) {
+			log.severe(String.format("Error setting a new body : %s", e.getMessage()));
+		}
+	}
+
+}

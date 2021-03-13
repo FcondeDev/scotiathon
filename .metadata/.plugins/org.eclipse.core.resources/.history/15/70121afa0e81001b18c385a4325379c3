@@ -1,0 +1,8 @@
+package com.scotiathon.voucher.entity;
+
+import org.springframework.beans.factory.annotation.Value;
+
+public interface GetBuAndVoucherId {
+	@Value("#{PassedVoucher.bu + PassedVoucher.voucher_id}")
+    String getFullName();
+}

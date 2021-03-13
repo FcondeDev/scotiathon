@@ -1,0 +1,26 @@
+package com.scotiathon.voucher.dto;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class ExclusionsDTO {
+
+	private String bu;
+	private String voucherId;
+	private String invoice;
+	private String date;
+	private String supplierId;
+	private String grossAmt;
+	private String glUnit;
+	private String entered;
+	private String status;
+	private String transit;
+
+}

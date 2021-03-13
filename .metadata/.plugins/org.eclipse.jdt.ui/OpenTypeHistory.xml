@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<typeInfoHistroy>
+<typeInfo handle="=scotiathon-voucher-service/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;com.scotiathon.voucher.service{VoucherService.java[VoucherService" modifiers="513" timestamp="1615608058316"/>
+<typeInfo handle="=scotiathon-voucher-service/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;com.scotiathon.voucher.service{VoucherAssignmentAndClerkProcessing.java[VoucherAssignmentAndClerkProcessing" modifiers="513" timestamp="1615607612517"/>
+<typeInfo handle="=scotiathon-voucher-service/C:\/Users\/s5268554\/.m2\/repository\/org\/springframework\/data\/spring-data-jpa\/2.2.6.RELEASE\/spring-data-jpa-2.2.6.RELEASE.jar=/maven.pomderived=/true=/=/maven.pomderived=/true=/=/maven.groupId=/org.springframework.data=/=/maven.artifactId=/spring-data-jpa=/=/maven.version=/2.2.6.RELEASE=/=/maven.scope=/compile=/&lt;org.springframework.data.jpa.repository(JpaRepository.class[JpaRepository" modifiers="1537" timestamp="1614735153740"/>
+</typeInfoHistroy>

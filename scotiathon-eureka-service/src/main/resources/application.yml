@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: scotiathon-eureka-service
+  profiles:
+    active:
+    - dev
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false

@@ -1,0 +1,5 @@
+package com.scotiathon.voucher.entity;
+
+public class Status {
+
+}

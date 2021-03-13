@@ -1,0 +1,24 @@
+package com.scotiathon.voucher.entity;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import lombok.Data;
+
+@Data
+@Table(name = "business_unit")
+@Entity
+public class BusinessUnit {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	private String bu;
+	@Column(name = "voucher_id")
+	private String voucherId;
+
+}

@@ -1,0 +1,5 @@
+package com.scotiathon.voucher.dto;
+
+public class ExclusionsDTO {
+
+}

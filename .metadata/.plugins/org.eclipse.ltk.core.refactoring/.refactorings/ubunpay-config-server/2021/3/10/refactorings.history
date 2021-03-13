@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy element &apos;configserver.jks&apos; to &apos;scotiathon-client-service/src/main/resources&apos;&#x0D;&#x0A;- Original project: &apos;ubunpay-config-server&apos;&#x0D;&#x0A;- Destination element: &apos;scotiathon-client-service/src/main/resources&apos;&#x0D;&#x0A;- Original element: &apos;configserver.jks&apos;" description="Copy file" destination="=scotiathon-client-service/src\/main\/resources=/maven.pomderived=/true=/" element1="src/main/resources/configserver.jks" files="1" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1614894669402" units="0" version="1.0"/>
+</session>

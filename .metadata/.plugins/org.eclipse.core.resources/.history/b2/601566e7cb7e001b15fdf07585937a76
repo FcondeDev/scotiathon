@@ -1,0 +1,57 @@
+package com.scotiathon.voucher.entity;
+
+import java.sql.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import lombok.Data;
+
+@Data
+@Table(name = "archivo_peoplesoft")
+@Entity
+public class Vourcher {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	private String bu;
+	@Column(name = "voucher_id")
+	private String voucherId;
+	@Column(name = "lines_entered")
+	private int linesEntered;
+	@Column(name = "voucher_source")
+	private String voucherSource;
+	@Column(name = "voucher_created_by")
+	private String voucherCreatedBy;
+	@Column(name = "voucher_created_on")
+	private Date voucherCreatedOn;
+	@Column(name = "post_status")
+	private String postStatus;
+	@Column(name = "entry_status")
+	private String entryStatus;
+	@Column(name = "supplier_id")
+	private int supplierId;
+	@Column(name = "short_supplier_name")
+	private String shortSupplierName;
+	@Column(name = "supplier_name")
+	private String supplierName;
+	@Column(name = "invoice_number")
+	private String invoiceNumber;
+	@Column(name = "invoice_date")
+	private Date invoiceDate;
+	@Column(name = "invoice_received")
+	private Date invoiceReceived;
+	@Column(name = "voucher_amount")
+	private Float voucherAmount;
+	@Column(name = "voucher_currency")
+	private String voucherCurrency;
+	@Column(name = "approval_status")
+	private String approvalStatus;
+	private int age;
+
+}

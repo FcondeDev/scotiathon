@@ -1,0 +1,48 @@
+#properties
+server:
+  error:
+    include-stacktrace: never
+  port: 80
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 20000
+            ribbon:
+ribbon:
+   ReadTimeout: 60000
+   connection-timeout: 3000
+   eureka:
+      enable: true
+zuul:
+   sensitive-headers:
+   - Cookie
+   - Set-Cookie
+   host:
+    connect-timeout-millis: 15000
+    socket-timeout-millis: 15000
+   routes:
+    scotiathon-client-service:
+     url: SCOTIATHON-CLIENT-SERVICE
+     path: /client-service/**
+    scotiathon-auth-service:
+     url: SCOTIATHON-AUTH-SERVICE
+     path: /oauth-service/**
+    
+#security
+auth:
+  white:
+    list: /client-service/clients/login,/oauth-service/oauth/token,/healthy,/actuator/refresh,//swagger-ui.html,//v2/api-docs,//swagger-resources/,//webjars/springfox-swagger-ui/*
+  deny:
+    list: /a
+    
+#eureka
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+

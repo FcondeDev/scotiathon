@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: scotiathon-client-service
+  profiles:
+    active:
+    - dev

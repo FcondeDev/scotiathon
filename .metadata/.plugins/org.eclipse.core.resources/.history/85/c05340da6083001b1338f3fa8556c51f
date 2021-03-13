@@ -1,0 +1,18 @@
+server:
+  port: 8081
+auth:
+  username: scotiathon
+  password: 5c0t14th0n
+  private: 
+     key:
+       password: d3v3l0p3rs*utpT1m4n4
+       pair: jwt
+eureka:
+  client:
+    service-url:
+      defaultZone: http://EUREKA-SERVICE:8761/eureka/
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}  
+  scotiathon:
+    client:
+       service: SCOTIATHON-CLIENT-SERVICE

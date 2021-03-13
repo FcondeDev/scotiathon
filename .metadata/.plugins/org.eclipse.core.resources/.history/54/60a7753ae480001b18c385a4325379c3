@@ -1,0 +1,5 @@
+package com.scotiathon.voucher.helper;
+
+public class ValidationHelper {
+
+}

@@ -1,0 +1,21 @@
+package com.scotiathon.voucher.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.scotiathon.voucher.dto.PassedVoucherDTO;
+import com.scotiathon.voucher.repository.SuccessfulVoucherRepository;
+import com.scotiathon.voucher.service.VoucherAssignmentAndClerkProcessing;
+
+public class VoucherAssignmentAndClerkProcessingImpl implements VoucherAssignmentAndClerkProcessing {
+
+	@Autowired
+	private SuccessfulVoucherRepository successfulVoucherRepository;
+
+	@Override
+	public List<PassedVoucherDTO> getPassedVouchers() {
+		return successfulVoucherRepository.findAll();
+	}
+
+}

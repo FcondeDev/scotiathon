@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: scotiathon-voucher-service
+  profiles:
+    active:
+    - dev

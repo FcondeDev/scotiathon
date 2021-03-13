@@ -1,0 +1,5 @@
+package com.scotiathon.client.service;
+
+public interface OauthFeignClient {
+
+}

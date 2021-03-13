@@ -1,0 +1,7 @@
+package com.scotiathon.voucher.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface BussinessUnitRepository extends JpaRepository<T, ID> {
+
+}

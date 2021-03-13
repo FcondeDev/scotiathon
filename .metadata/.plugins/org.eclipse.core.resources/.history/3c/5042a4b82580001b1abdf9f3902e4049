@@ -1,0 +1,5 @@
+package com.scotiathon.voucher.config;
+
+public class VoucherConfiguration {
+
+}

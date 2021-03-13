@@ -1,0 +1,8 @@
+package com.scotiathon.voucher.helper;
+
+import org.springframework.stereotype.Component;
+
+@Component
+public class ValidationHelper {
+
+}

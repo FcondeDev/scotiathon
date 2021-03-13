@@ -1,0 +1,23 @@
+package com.scotiathon.voucher.repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import com.scotiathon.voucher.entity.GetBuAndVoucherId;
+import com.scotiathon.voucher.entity.PassedVoucher;
+
+@Repository
+public interface SuccessfulVoucherRepository extends JpaRepository<PassedVoucher, Long> {
+
+	@Query(value = "SELECT bu,voucher_id FROM passed_vouchers", nativeQuery = true)
+	public List<GetBuAndVoucherId> selectBuAndVoucherIdForDuplicates();
+
+	@Modifying(clearAutomatically = true)
+	@Query(value = "UPDATE passed_vouchers pv SET pv.status_clerk=:statusForExclusions WHERE CONCAT(pv.bu,pv.voucher_id) IN (:listOfExclusionsId)", nativeQuery = true)
+	public void updateExclusions();
+
+}

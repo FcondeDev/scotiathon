@@ -1,0 +1,60 @@
+package com.scotiathon.voucher;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
+
+import com.scotiathon.voucher.repository.FailedVoucherRepository;
+import com.scotiathon.voucher.repository.SuccessfulVoucherRepository;
+import com.scotiathon.voucher.service.VoucherAssignmentAndClerkProcessing;
+import com.scotiathon.voucher.service.VoucherService;
+
+@AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
+@SpringBootTest
+class ScotiathonVoucherServiceApplicationTests {
+
+	@Autowired
+	@Qualifier("VoucherServiceLoadAndInitialValidation")
+	private VoucherService voucherServiceLoadAndInitialValidation;
+
+	@Autowired
+	@Qualifier("VoucherServiceExclusions")
+	private VoucherService voucherServiceExclusions;
+
+	@Autowired
+	private VoucherAssignmentAndClerkProcessing voucherAssignmentAndClerkProcessing;
+
+	@Autowired
+	private SuccessfulVoucherRepository successfulVoucherRepository;
+
+	@Autowired
+	private FailedVoucherRepository failedVoucherRepository;
+
+	@Test
+	void validateProcess() throws Exception {
+		MockMultipartFile peopleSoft = new MockMultipartFile("file", "file", null,
+				Files.readAllBytes(Paths.get(ClassLoader.getSystemResource("Peoplesofttest.csv").toURI())));
+
+		voucherServiceLoadAndInitialValidation.storeAndValidateVouchers(peopleSoft);
+
+		MockMultipartFile exclusions = new MockMultipartFile("file", "file", null,
+				Files.readAllBytes(Paths.get(ClassLoader.getSystemResource("Peoplesofttest.csv").toURI())));
+
+		voucherServiceExclusions.storeAndValidateVouchers(exclusions);
+
+		assertTrue(successfulVoucherRepository.findAll().size() > 0);
+		assertTrue(failedVoucherRepository.findAll().size() > 0);
+
+
+	}
+}

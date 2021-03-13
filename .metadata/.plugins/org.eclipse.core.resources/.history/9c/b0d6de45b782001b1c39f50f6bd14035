@@ -1,0 +1,23 @@
+SET MODE MSSQLServer;
+CREATE SCHEMA IF NOT EXISTS customers;
+
+
+CREATE TABLE customers.customer_property_search (
+	customer_property_search_id bigint DEFAULT NOT NULL,
+	cid varchar(25)  NOT NULL,
+	city_name varchar(100) NULL,
+	province_code char(2)  NOT NULL,
+	minimum_price numeric(19,4) NULL,
+	maximum_price numeric(19,4) NULL,
+	building_type int NULL,
+	condo int NULL,
+	bedroom int NULL,
+	bathroom int NULL,
+	sort_criteria varchar(25)  NULL,
+	result_limit int NULL,
+	created_by varchar(100)  NOT NULL,
+	created_ts datetime2(7) DEFAULT getdate() NOT NULL,
+	search_ts datetime2(7) NULL,
+	CONSTRAINT PK_Customer_Property_Search_ID PRIMARY KEY (customer_property_search_id)
+);
+

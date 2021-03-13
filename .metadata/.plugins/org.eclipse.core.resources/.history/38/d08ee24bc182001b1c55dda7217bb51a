@@ -1,0 +1,13 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: -1
+      max-request-size: -1
+  cloud:
+    discovery:
+      enabled: false
+server:
+  port: 9002
+eureka:
+  client:
+   enabled: false

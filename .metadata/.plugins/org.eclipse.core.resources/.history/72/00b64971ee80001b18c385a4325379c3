@@ -1,0 +1,105 @@
+package com.scotiathon.client.service.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.logging.Level;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
+import com.scotiathon.client.dto.AuthResponseDTO;
+import com.scotiathon.client.dto.ClientDTO;
+import com.scotiathon.client.dto.RoleDTO;
+import com.scotiathon.client.entity.Client;
+import com.scotiathon.client.entity.Role;
+import com.scotiathon.client.error.ErrorEnum;
+import com.scotiathon.client.exception.CustomException;
+import com.scotiathon.client.exception.NotFoundException;
+import com.scotiathon.client.repository.ClientRepository;
+import com.scotiathon.client.service.ClientService;
+import com.scotiathon.client.service.OauthFeignClient;
+
+import lombok.extern.java.Log;
+
+@Log
+@Service
+public class ClientServiceImpl implements ClientService {
+
+	@Autowired
+	private ClientRepository clientRepository;
+
+	@Autowired
+	private OauthFeignClient oauthFeignClient;
+
+	@Autowired
+	private BCryptPasswordEncoder passwordEncoder;
+
+	@Override
+	public ClientDTO getClientByScotiaId(String scotiaId) {
+		Optional<Client> client = clientRepository.findByScotiaId(scotiaId);
+
+		if (client.isPresent()) {
+			List<RoleDTO> roles = new ArrayList<>();
+			for (Role role : client.get().getRoles()) {
+				roles.add(new RoleDTO(null, role.getName()));
+			}
+			return new ClientDTO(null, scotiaId, client.get().getEmail(), client.get().getPassword(),
+					client.get().isEnabled(), client.get().getUsername(), client.get().getFailedAttemps(),
+					client.get().getLastDateLoggedIn(), roles);
+		} else {
+			throw new NotFoundException();
+		}
+	}
+
+	@Override
+	public AuthResponseDTO login(ClientDTO clientDTO, String basicAuth) {
+
+		Optional<Client> client = clientRepository.findByScotiaId(clientDTO.getScotiaId());
+
+		if (!client.isPresent())
+			throw new NotFoundException();
+
+		if (!client.get().isEnabled())
+			throw new CustomException(ErrorEnum.USER_BLOCKED, HttpStatus.UNAUTHORIZED);
+
+		if (passwordEncoder.matches(clientDTO.getPassword(), client.get().getPassword())) {
+			Client clientLoggedIn = client.get();
+			clientLoggedIn.setFailedAttemps(0L);
+			clientLoggedIn.setLastDateLoggedIn(new Date());
+			log.info(String.format("User logged succesfully : %s, hora : %s", clientDTO.getScotiaId(), new Date()));
+		} else {
+
+			clientDTO.setFailedAttemps(clientDTO.getFailedAttemps() + 1);
+
+			if (clientDTO.getFailedAttemps() == 3)
+				clientDTO.setEnabled(false);
+
+			log.info(String.format("LogIn denied user : %s, number of attemps : %s, hour : %s", clientDTO.getName(),
+					clientDTO.getFailedAttemps(), new Date()));
+			throw new CustomException(ErrorEnum.WRONG_PASSWORD_OR_USER, HttpStatus.FORBIDDEN);
+		}
+
+		MultiValueMap<String, Object> credentials = new LinkedMultiValueMap<>();
+		credentials.add("username", clientDTO.getScotiaId());
+		credentials.add("password", clientDTO.getPassword());
+		credentials.add("grant_type", "password");
+		return getToken(credentials, basicAuth);
+
+	}
+
+	private AuthResponseDTO getToken(MultiValueMap<String, Object> credentials, String basicAuth) {
+		try {
+			return oauthFeignClient.getToken(credentials, basicAuth);
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "TOKEN UNAVAILABLE");
+			throw new CustomException(ErrorEnum.TOKEN_UNAVAILABLE, HttpStatus.BAD_GATEWAY);
+		}
+	}
+
+}

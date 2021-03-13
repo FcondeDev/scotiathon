@@ -1,0 +1,23 @@
+package com.scotiathon.voucher.helper;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.scotiathon.voucher.entity.BusinessUnit;
+import com.scotiathon.voucher.repository.BussinessUnitRepository;
+
+@Component
+public class ValidationHelper {
+
+	@Autowired
+	private BussinessUnitRepository bussinessUnitRepository;
+
+	public boolean validateBussinessUnit(String businessUnitCode) {
+		List<BusinessUnit> businessUnitCodes = bussinessUnitRepository.findAll();
+		return businessUnitCodes.stream().filter(businessUnit -> businessUnit.getBu().equals(businessUnitCode))
+				.findFirst().isPresent();
+	}
+
+}

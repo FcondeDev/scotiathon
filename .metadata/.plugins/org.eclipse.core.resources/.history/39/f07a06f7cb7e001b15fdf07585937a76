@@ -1,0 +1,11 @@
+package com.scotiathon.voucher.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import com.scotiathon.voucher.entity.SuccesVourcher;
+
+@Repository
+public interface SuccessfulVoucherRepository extends JpaRepository<SuccesVourcher, Long> {
+
+}

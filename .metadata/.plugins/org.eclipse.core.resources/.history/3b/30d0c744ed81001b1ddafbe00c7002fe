@@ -1,0 +1,7 @@
+package com.scotiathon.voucher.service.impl;
+
+import com.scotiathon.voucher.service.VoucherAssignmentAndClerkProcessing;
+
+public class VoucherAssignmentAndClerkProcessingImpl implements VoucherAssignmentAndClerkProcessing {
+
+}

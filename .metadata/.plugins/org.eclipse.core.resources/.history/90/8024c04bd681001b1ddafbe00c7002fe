@@ -1,0 +1,16 @@
+package com.scotiathon.voucher.dto;
+
+public class ExclusionsDTO {
+
+	private String bu;
+	private String voucherId;
+	private String invoice;
+	private String Date;
+	private String supplierId;
+	private String grossAmt;
+	private String glUnit;
+	private String entered;
+	private String status;
+	private String transit;
+
+}

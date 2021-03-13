@@ -1,0 +1,5 @@
+package com.scotiathon.client.dto;
+
+public class LogInDTO {
+
+}

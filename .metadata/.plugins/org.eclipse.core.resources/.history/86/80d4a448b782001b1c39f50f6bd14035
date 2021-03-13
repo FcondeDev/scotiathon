@@ -1,0 +1,17 @@
+INSERT INTO customers.customer_property_search
+(customer_property_search_id, cid, city_name, province_code, minimum_price, maximum_price, building_type, 
+condo, bedroom, bathroom, sort_criteria, result_limit, created_by, created_ts, search_ts)
+VALUES(1, '1', 'Toronto', 'ON', 0, 50000, 1, 1, 
+1, 1, 'PriceASC', 10, 'ehometest', getdate(), '2019-06-14 15:07:37');
+INSERT INTO customers.customer_property_search
+(customer_property_search_id, cid, city_name, province_code, minimum_price, maximum_price, building_type, 
+condo, bedroom, bathroom, sort_criteria, result_limit, created_by, created_ts, search_ts)
+VALUES(2, '2', 'Ottawa', 'ON', 0, 50000, 1, 1, 
+1, 1, 'PriceASC', 10, 'ehometest', getdate(), '2019-12-17 14:00:43');
+
+INSERT INTO customers.customer_property_search
+(customer_property_search_id, cid, city_name, province_code, minimum_price, maximum_price, building_type, 
+condo, bedroom, bathroom, sort_criteria, result_limit, created_by, created_ts, search_ts)
+VALUES(3, '2', 'Iveria', 'ON', 0, 50000, 1, 1, 
+1, 1, 'PriceASC', 10, 'ehometest', getdate(), '2019-01-14 15:07:37');
+

@@ -1,0 +1,5 @@
+package com.scotiathon.voucher.service.impl;
+
+public class GenerateReportToCSV {
+
+}

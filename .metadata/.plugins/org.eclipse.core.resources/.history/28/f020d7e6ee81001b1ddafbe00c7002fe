@@ -1,0 +1,31 @@
+package com.scotiathon.voucher.service.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.scotiathon.voucher.dto.PassedVoucherDTO;
+import com.scotiathon.voucher.entity.PassedVoucher;
+import com.scotiathon.voucher.repository.SuccessfulVoucherRepository;
+import com.scotiathon.voucher.service.VoucherAssignmentAndClerkProcessing;
+
+public class VoucherAssignmentAndClerkProcessingImpl implements VoucherAssignmentAndClerkProcessing {
+
+	@Autowired
+	private SuccessfulVoucherRepository successfulVoucherRepository;
+
+	@Autowired
+	private ModelMapper modelMapper;
+
+	@Override
+	public List<PassedVoucherDTO> getPassedVouchers() {
+		List<PassedVoucher> passedVouchers = successfulVoucherRepository.selectAllExceptNotApplicable();
+		List<PassedVoucherDTO> passedVouchersDTO = new ArrayList<>();
+		passedVouchers.stream().forEach(
+				passedVoucher -> passedVouchersDTO.add(modelMapper.map(passedVoucher, PassedVoucherDTO.class)));
+		return null;
+	}
+
+}

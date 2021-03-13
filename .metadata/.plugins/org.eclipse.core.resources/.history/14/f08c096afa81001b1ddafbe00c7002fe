@@ -1,0 +1,34 @@
+package com.scotiathon.voucher.repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import com.scotiathon.voucher.entity.GetBuAndVoucherId;
+import com.scotiathon.voucher.entity.PassedVoucher;
+
+@Repository
+public interface SuccessfulVoucherRepository extends JpaRepository<PassedVoucher, Long> {
+
+	@Query(value = "SELECT bu,voucher_id FROM passed_vouchers", nativeQuery = true)
+	public List<GetBuAndVoucherId> selectBuAndVoucherIdForDuplicates();
+
+	@Modifying(clearAutomatically = true)
+	@Query(value = "UPDATE passed_vouchers pv SET pv.status_clerk=:statusForExclusions WHERE CONCAT(pv.bu,pv.voucher_id) IN (:listOfExclusionsId) AND pv.created_at BETWEEN DATE_SUB(NOW(), INTERVAL 7 DAY) AND NOW()", nativeQuery = true)
+	public void updateExclusions(@Param("statusForExclusions") String statusForExclusions,
+			List<String> listOfExclusionsId);
+
+	@Query(value = "SELECT * FROM passed_vouchers pv WHERE pv.status_clerk <> 'Canada_Accountable_EX' AND pv.status_clerk IS NULL", nativeQuery = true)
+	public List<PassedVoucher> selectAllExceptNotApplicable();
+
+	@Modifying(clearAutomatically = true)
+	@Query(value = "UPDATE passed_vouchers pv SET pv.assigned_to_clerk =:clientId WHERE pv.id IN (:listOfVouchers)", nativeQuery = true)
+	public void updateAssignment(Long clientId, List<Long> listOfVouchers);
+
+	public List<PassedVoucher> findByClientId(Long clientId);
+
+}

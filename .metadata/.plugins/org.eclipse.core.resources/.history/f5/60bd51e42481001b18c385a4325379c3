@@ -1,0 +1,55 @@
+package com.scotiathon.voucher.helper;
+
+import java.util.HashSet;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.scotiathon.voucher.entity.BusinessUnit;
+import com.scotiathon.voucher.entity.GetBuAndVoucherId;
+import com.scotiathon.voucher.entity.PassedVoucher;
+import com.scotiathon.voucher.entity.Vpac;
+import com.scotiathon.voucher.repository.BussinessUnitRepository;
+import com.scotiathon.voucher.repository.SuccessfulVoucherRepository;
+import com.scotiathon.voucher.repository.VpacRepository;
+
+@Component
+public class ValidationHelper {
+
+	@Autowired
+	private BussinessUnitRepository bussinessUnitRepository;
+
+	@Autowired
+	private SuccessfulVoucherRepository successfulVoucherRepository;
+
+	private static final Float MINIMUM_AMOUNT_TO_BE_MARKED_AS_VA = 15000F;
+	private static final String VA_MARK = "VA";
+
+	public boolean validateBussinessUnit(String businessUnitCode) {
+		List<BusinessUnit> businessUnitCodes = bussinessUnitRepository.findAll();
+		return businessUnitCodes.stream().anyMatch(businessUnit -> businessUnit.getBu().equals(businessUnitCode));
+	}
+
+	public HashSet<String> validateDuplicateResultsInDatabase() {
+		List<GetBuAndVoucherId> passedVouchers = successfulVoucherRepository.selectBuAndVoucherIdForDuplicates();
+		HashSet<String> uniqueValues = new HashSet<>();
+		passedVouchers.forEach(passedVoucher -> uniqueValues.add(passedVoucher.getBuPlusVoucherId()));
+		return uniqueValues;
+
+	}
+
+	public void markingAndClassifyingSuccesVoucher(PassedVoucher successVoucher, List<Vpac> vpacRows) {
+
+		if (successVoucher.getBu().equals("1A001")) {
+			
+		}
+
+		vpacRepository.findAll();
+
+		if (successVoucher.getVoucherAmount() > MINIMUM_AMOUNT_TO_BE_MARKED_AS_VA)
+			successVoucher.setPriorityMark(VA_MARK);
+
+	}
+
+}

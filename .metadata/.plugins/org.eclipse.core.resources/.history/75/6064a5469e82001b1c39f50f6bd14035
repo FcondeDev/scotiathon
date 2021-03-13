@@ -1,0 +1,45 @@
+package com.scotiathon.voucher.config;
+
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.util.logging.Level;
+
+import org.modelmapper.AbstractConverter;
+import org.modelmapper.Converter;
+import org.modelmapper.ModelMapper;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+
+import com.scotiathon.voucher.error.ErrorEnum;
+import com.scotiathon.voucher.exception.CustomException;
+
+import lombok.extern.java.Log;
+
+@Log
+@Configuration
+public class VoucherConfiguration {
+
+	@Bean
+	public ModelMapper modelMapper() {
+		ModelMapper modelMapper = new ModelMapper();
+		modelMapper.addConverter(stringToDateConverter);
+		return modelMapper;
+	}
+
+	Converter<String, Date> stringToDateConverter = new AbstractConverter<String, Date>() {
+		@Override
+		protected Date convert(String source) {
+			try {
+				SimpleDateFormat format = new SimpleDateFormat("M/d/yyyy");
+				java.util.Date parsed = format.parse(source);
+				return new Date(parsed.getTime());
+			} catch (Exception e) {
+				log.log(Level.SEVERE, "Error Converting date");
+				throw new CustomException(ErrorEnum.ERROR_WHILE_CONVERTING_DATE, HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+
+		}
+	};
+
+}

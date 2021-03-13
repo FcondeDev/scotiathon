@@ -1,0 +1,5 @@
+package com.scotiathon.voucher.repository;
+
+public interface VpacRepository {
+
+}

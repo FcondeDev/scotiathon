@@ -1,0 +1,6 @@
+package com.scotiathon.voucher.entity;
+
+public interface GetBuAndVoucherId {
+	String getBu();
+    String getVoucherId();
+}

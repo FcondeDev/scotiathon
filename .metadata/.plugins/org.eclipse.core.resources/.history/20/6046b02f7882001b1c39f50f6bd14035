@@ -1,0 +1,15 @@
+package com.scotiathon.voucher.entity;
+
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+import lombok.Data;
+
+@Data
+@Table(name = "status")
+@Entity
+public class Status {
+
+}

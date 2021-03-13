@@ -1,0 +1,209 @@
+package com.scotiathon.voucher.service.impl;
+
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.opencsv.CSVReader;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.HeaderColumnNameTranslateMappingStrategy;
+import com.scotiathon.voucher.dto.VoucherDTO;
+import com.scotiathon.voucher.dto.VoucherResponseDTO;
+import com.scotiathon.voucher.dto.VoucherValidationDTO;
+import com.scotiathon.voucher.entity.FailedVoucher;
+import com.scotiathon.voucher.entity.PassedVoucher;
+import com.scotiathon.voucher.entity.RealState;
+import com.scotiathon.voucher.entity.Vpac;
+import com.scotiathon.voucher.error.ErrorEnum;
+import com.scotiathon.voucher.exception.CustomException;
+import com.scotiathon.voucher.helper.ValidationHelper;
+import com.scotiathon.voucher.repository.FailedVoucherRepository;
+import com.scotiathon.voucher.repository.RealStateRepository;
+import com.scotiathon.voucher.repository.SuccessfulVoucherRepository;
+import com.scotiathon.voucher.repository.VpacRepository;
+import com.scotiathon.voucher.service.GenerateReport;
+import com.scotiathon.voucher.service.VoucherService;
+import com.scotiathon.voucher.validation.EntryStatus;
+import com.scotiathon.voucher.validation.VoucherSource;
+
+import lombok.extern.java.Log;
+
+@Log
+@Service("voucherValidationInitial")
+public class VoucherServiceLoadAndInitialValidationImpl implements VoucherService {
+
+	@Autowired
+	private SuccessfulVoucherRepository successfulVoucherRepository;
+
+	@Autowired
+	private FailedVoucherRepository failedVoucherRepository;
+
+	@Autowired
+	private ModelMapper modelMapper;
+
+	@Autowired
+	private ValidationHelper validationHelper;
+
+	@Autowired
+	private GenerateReport generateReport;
+
+	@Autowired
+	private VpacRepository vpacRepository;
+
+	@Autowired
+	private RealStateRepository realStateRepository;
+
+	@Override
+	public VoucherResponseDTO storeAndValidateVouchers(MultipartFile vouchers) {
+
+		if (!Optional.ofNullable(vouchers).isPresent())
+			throw new CustomException(ErrorEnum.VOUCHERS_FILE_NOT_FOUND, HttpStatus.NOT_FOUND);
+
+		log.info("-----Starting processing vourchers----------");
+		List<VoucherDTO> listOfVouchers = convertCSVToList(vouchers);
+		CompletableFuture.runAsync(() -> {
+			List<PassedVoucher> listOfSuccessVouchers = new ArrayList<>();
+			List<FailedVoucher> listOfFailedVouchers = new ArrayList<>();
+
+			HashSet<String> uniqueValues = validationHelper.validateDuplicateResultsInDatabase();
+			List<Vpac> vpacRows = vpacRepository.findAll();
+			List<RealState> realStates = realStateRepository.findAll();
+			for (VoucherDTO voucherDTO : listOfVouchers) {
+				validateIfVoucherIsCorrect(voucherDTO, listOfFailedVouchers, listOfSuccessVouchers, uniqueValues,
+						vpacRows, realStates);
+			}
+
+			if (!listOfSuccessVouchers.isEmpty()) {
+				log.info("Inserting passed vouchers...");
+				log.info(String.format("Number of passed vouchers : %s", listOfSuccessVouchers.size()));
+				successfulVoucherRepository.saveAll(listOfSuccessVouchers);
+			}
+			if (!listOfFailedVouchers.isEmpty()) {
+				log.info("Inserting failed vouchers...");
+				log.info(String.format("Number of failed vouchers : %s", listOfFailedVouchers.size()));
+				failedVoucherRepository.saveAll(listOfFailedVouchers);
+				generateReport.generateFailureReport(listOfFailedVouchers);
+			}
+			log.info("-----finishing processing vourchers----------");
+
+		});
+		return new VoucherResponseDTO(true);
+
+	}
+
+	private void validateIfVoucherIsCorrect(VoucherDTO voucherDTO, List<FailedVoucher> listOfFailedVouchers,
+			List<PassedVoucher> listOfSuccessVouchers, HashSet<String> uniqueValues, List<Vpac> vpacRows,
+			List<RealState> realStates) {
+
+		try {
+			VoucherValidationDTO voucherValidationDTO = voucherValidation(voucherDTO, uniqueValues);
+
+			if (voucherValidationDTO.isAValidVoucher()) {
+				log.info("The voucher passed the validations, trying to insert..");
+				PassedVoucher successVoucher = modelMapper.map(voucherDTO, PassedVoucher.class);
+				validationHelper.markingAndClassifyingSuccesVoucher(successVoucher, vpacRows, realStates);
+				listOfSuccessVouchers.add(successVoucher);
+
+			} else {
+				log.info(String.format("The voucher is invalid. Business unit: %s, voucher id: %s , ERROR: %s",
+						voucherDTO.getBu(), voucherDTO.getVoucherId(), voucherValidationDTO.getFailureReason()));
+
+				FailedVoucher failedVoucher = modelMapper.map(voucherDTO, FailedVoucher.class);
+				failedVoucher.setFailureReason(voucherValidationDTO.getFailureReason());
+				listOfFailedVouchers.add(failedVoucher);
+			}
+		} catch (Exception e) {
+			log.log(Level.SEVERE, String.format(
+					"Error in voucher. Business unit: %s, voucher id: %s , ERROR: Voucher has a unprocessable field.",
+					voucherDTO.getBu(), voucherDTO.getVoucherId()));
+			listOfFailedVouchers.add(modelMapper.map(voucherDTO, FailedVoucher.class));
+		}
+	}
+
+	private VoucherValidationDTO voucherValidation(VoucherDTO voucherDTO, HashSet<String> uniqueValues) {
+
+		if (voucherDTO.getBu().equals("10001") && voucherDTO.getVoucherId().equals("0")) {
+			log.info("Business unit and voucher id : 10001, 0 ");
+			return new VoucherValidationDTO("INVALID BUSINESS UNIT AND VOUCHER ID COMBINATION 10001 AND 0", false);
+		}
+
+		if (!VoucherSource.isPresent(voucherDTO.getVoucherSource())) {
+			log.info("Voucher does not have a valid Voucher Source");
+			return new VoucherValidationDTO("INVALID VOUCHER SOURCE", false);
+		}
+
+		if (!EntryStatus.isPresent(voucherDTO.getEntryStatus())) {
+			log.info("Voucher does not have a valid entry status");
+			return new VoucherValidationDTO("INVALID ENTRY STATUS", false);
+		}
+
+		if (!validationHelper.validateBussinessUnit(voucherDTO.getBu())) {
+			log.info("Voucher does not have a valid business unit");
+			return new VoucherValidationDTO("INVALID BUSINESS UNIT", false);
+
+		}
+
+		if (!uniqueValues.add(voucherDTO.getBu() + voucherDTO.getVoucherId())) {
+			log.info("Voucher is duplicated");
+			return new VoucherValidationDTO("DUPLICATED", false);
+		}
+
+		return new VoucherValidationDTO(null, true);
+	}
+
+	private List<VoucherDTO> convertCSVToList(MultipartFile vouchers) {
+		try {
+
+			HeaderColumnNameTranslateMappingStrategy<VoucherDTO> strategy = new HeaderColumnNameTranslateMappingStrategy<>();
+			strategy.setType(VoucherDTO.class);
+			strategy.setColumnMapping(mappingForCSV());
+
+			Reader reader = new InputStreamReader(vouchers.getInputStream());
+			CSVReader csvReader = new CSVReader(reader);
+			CsvToBean<VoucherDTO> csv = new CsvToBean<>();
+			csv.setCsvReader(csvReader);
+			csv.setMappingStrategy(strategy);
+			return csv.parse();
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "Error while processing csv");
+			throw new CustomException(ErrorEnum.ERROR_WHILE_VALIDATING_EXCEL, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	private Map<String, String> mappingForCSV() {
+		Map<String, String> mapping = new HashMap<>();
+		mapping.put("Voucher ID", "voucherId");
+		mapping.put("Business Unit", "bu");
+		mapping.put("Lines Entered", "linesEntered");
+		mapping.put("Voucher Source", "voucherSource");
+		mapping.put("Voucher Created by User", "voucherCreatedBy");
+		mapping.put("Voucher Created on", "voucherCreatedOn");
+		mapping.put("Post Status", "postStatus");
+		mapping.put("Entry Status", "entryStatus");
+		mapping.put("Supplier ID", "supplierId");
+		mapping.put("Short Supplier Name", "shortSupplierName");
+		mapping.put("Supplier Name", "supplierName");
+		mapping.put("Invoice Number", "invoiceNumber");
+		mapping.put("Invoice Date", "invoiceDate");
+		mapping.put("Invoice Received", "invoiceReceived");
+		mapping.put("Voucher Amount", "voucherAmount");
+		mapping.put("Voucher Currency", "voucherCurrency");
+		mapping.put("Approval Status", "approvalStatus");
+		mapping.put("Age", "age");
+		return mapping;
+	}
+
+}

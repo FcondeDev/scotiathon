@@ -1,0 +1,27 @@
+package com.scotiathon.voucher.service.impl;
+
+import java.util.List;
+import java.util.logging.Level;
+
+import org.springframework.stereotype.Service;
+
+import com.scotiathon.voucher.entity.FailedVoucher;
+import com.scotiathon.voucher.service.GenerateReport;
+
+import lombok.extern.java.Log;
+
+@Log
+@Service
+public class GenerateReportToCSV implements GenerateReport {
+
+	@Override
+	public void generateFailureReport(List<FailedVoucher> failedVouchers) {
+		try {
+
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "Error while generating failure report", e);
+		}
+
+	}
+
+}

@@ -1,0 +1,6 @@
+package com.scotiathon.voucher.service;
+
+public interface VoucherAssignmentAndClerkProcessing {
+
+	public List<>
+}

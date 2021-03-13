@@ -1,0 +1,61 @@
+package com.scotiathon.gateway.filters;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.exception.ZuulException;
+import com.scotiathon.gateway.dto.ApiErrorDTO;
+
+import lombok.extern.java.Log;
+
+@Component
+@Log
+public class ErrorFilter extends ZuulFilter {
+
+	@Autowired
+	private ObjectMapper objectMapper;
+
+	private static final String FILTER_TYPE = "error";
+	private static final String THROWABLE_KEY = "throwable";
+	private static final int FILTER_ORDER = -1;
+	private static final String ERROR_DESCRIPTION = "ERROR IN ZUUL REQUEST : %s";
+	private static final String ERROR_TITLE = "ZUUL EXCEPTION";
+	private static final int ERORR_CODE = 1;
+
+	@Override
+	public String filterType() {
+		return FILTER_TYPE;
+	}
+
+	@Override
+	public int filterOrder() {
+		return FILTER_ORDER;
+	}
+
+	@Override
+	public boolean shouldFilter() {
+		return true;
+	}
+
+	@Override
+	public Object run() {
+		final RequestContext context = RequestContext.getCurrentContext();
+		final Object throwable = context.get(THROWABLE_KEY);
+
+		
+		return null;
+	}
+
+	private void createErrorResponse(ApiErrorDTO apiErrorDTO, RequestContext context) {
+		try {
+			context.setResponseBody(objectMapper.writeValueAsString(apiErrorDTO));
+		} catch (JsonProcessingException e) {
+			log.severe(String.format("Error setting a new body : %s", e.getMessage()));
+		}
+	}
+
+}

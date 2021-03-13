@@ -1,0 +1,26 @@
+package com.scotiathon.voucher.validation;
+
+public enum VoucherSource {
+	
+	ONLINE("Online"),
+	PAYMENT_REQUEST("Payment Request");
+
+
+	private String value;
+	
+	VoucherSource(String value) {
+		this.value = value;
+	}
+	
+	
+	public static VoucherSource isPresent(String value) {
+		for (VoucherSource b : VoucherSource.values()) {
+			if (String.valueOf(b.value).equals(text)) {
+				return b;
+			}
+		}
+		return null;
+	}
+	
+	
+}

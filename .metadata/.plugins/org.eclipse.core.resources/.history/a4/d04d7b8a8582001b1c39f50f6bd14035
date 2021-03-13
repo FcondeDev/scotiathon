@@ -1,0 +1,133 @@
+package com.scotiathon.voucher.service.impl;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.scotiathon.voucher.dto.EscalatedToDTO;
+import com.scotiathon.voucher.dto.PassedVoucherDTO;
+import com.scotiathon.voucher.dto.ReasonEscalationDTO;
+import com.scotiathon.voucher.dto.StatusDTO;
+import com.scotiathon.voucher.dto.VoucherResponseDTO;
+import com.scotiathon.voucher.entity.EscalatedTo;
+import com.scotiathon.voucher.entity.PassedVoucher;
+import com.scotiathon.voucher.entity.ReasonEscalation;
+import com.scotiathon.voucher.entity.Status;
+import com.scotiathon.voucher.exception.NotFoundException;
+import com.scotiathon.voucher.repository.EscalatedToRepository;
+import com.scotiathon.voucher.repository.ReasonEscalationRepository;
+import com.scotiathon.voucher.repository.StatusRepository;
+import com.scotiathon.voucher.repository.SuccessfulVoucherRepository;
+import com.scotiathon.voucher.service.VoucherAssignmentAndClerkProcessing;
+
+@Service
+public class VoucherAssignmentAndClerkProcessingImpl implements VoucherAssignmentAndClerkProcessing {
+
+	@Autowired
+	private SuccessfulVoucherRepository successfulVoucherRepository;
+
+	@Autowired
+	private StatusRepository statusRepository;
+
+	@Autowired
+	private ReasonEscalationRepository reasonEscalationRepository;
+
+	@Autowired
+	private EscalatedToRepository escalatedToRepository;
+
+	@Autowired
+	private ModelMapper modelMapper;
+
+	private static final String NO_SUBM_FORM = "S4A_with_NO_subm_form";
+	private static final String SUBM_FORM = "S4A_with_subm_form";
+
+	@Override
+	public List<PassedVoucherDTO> getPassedVouchers() {
+		List<PassedVoucher> passedVouchers = successfulVoucherRepository.selectAllExceptNotApplicable();
+		List<PassedVoucherDTO> passedVouchersDTO = new ArrayList<>();
+		passedVouchers.stream().forEach(
+				passedVoucher -> passedVouchersDTO.add(modelMapper.map(passedVoucher, PassedVoucherDTO.class)));
+		return passedVouchersDTO;
+	}
+
+	@Transactional
+	@Override
+	public VoucherResponseDTO voucherAssigment(List<PassedVoucherDTO> vouchersToBeAssigned, Long clientId) {
+		List<Long> listOfVouchers = new ArrayList<>();
+		vouchersToBeAssigned.stream().forEach(passedVoucher -> listOfVouchers.add(passedVoucher.getId()));
+
+		successfulVoucherRepository.updateAssignment(clientId, listOfVouchers);
+		return new VoucherResponseDTO(null, true);
+	}
+
+	@Override
+	public List<PassedVoucherDTO> getPassedVouchersByclerk(Long clientId) {
+		List<String> statusClerkNotIn = new ArrayList<>();
+		statusClerkNotIn.add(NO_SUBM_FORM);
+		statusClerkNotIn.add(SUBM_FORM);
+		List<PassedVoucher> passedVouchers = successfulVoucherRepository.getClerkVouchers(clientId, statusClerkNotIn);
+		List<PassedVoucherDTO> passedVouchersDTO = new ArrayList<>();
+		passedVouchers.stream().forEach(
+				passedVoucher -> passedVouchersDTO.add(modelMapper.map(passedVoucher, PassedVoucherDTO.class)));
+		return passedVouchersDTO;
+	}
+
+	@Override
+	public List<StatusDTO> getVoucherStatuses() {
+		List<Status> statuses = statusRepository.findAll();
+		List<StatusDTO> statusDTO = new ArrayList<>();
+		statuses.stream().forEach(status -> statusDTO.add(modelMapper.map(status, StatusDTO.class)));
+		return statusDTO;
+	}
+
+	@Override
+	public List<ReasonEscalationDTO> getVoucherReasonsEscalation() {
+		List<ReasonEscalation> statuses = reasonEscalationRepository.findAll();
+		List<ReasonEscalationDTO> statusDTO = new ArrayList<>();
+		statuses.stream().forEach(status -> statusDTO.add(modelMapper.map(status, ReasonEscalationDTO.class)));
+		return statusDTO;
+	}
+
+	@Override
+	public List<EscalatedToDTO> getVoucherEscaledTo() {
+		List<EscalatedTo> statuses = escalatedToRepository.findAll();
+		List<EscalatedToDTO> statusDTO = new ArrayList<>();
+		statuses.stream().forEach(status -> statusDTO.add(modelMapper.map(status, EscalatedToDTO.class)));
+		return statusDTO;
+	}
+
+	@Override
+	public PassedVoucherDTO editVoucherInformation(PassedVoucherDTO passedVoucherDTO) {
+		Optional<PassedVoucher> passedVoucherCheck = successfulVoucherRepository.findById(passedVoucherDTO.getId());
+
+		if (!passedVoucherCheck.isPresent())
+			throw new NotFoundException();
+
+		PassedVoucher passedVoucher = passedVoucherCheck.get();
+
+		if (Optional.ofNullable(passedVoucherDTO.getStatusClerk()).isPresent())
+			passedVoucher.setStatusClerk(passedVoucherDTO.getStatusClerk());
+
+		if (Optional.ofNullable(passedVoucherDTO.getReasonEscalation()).isPresent())
+			passedVoucher.setReasonEscalation(passedVoucherDTO.getReasonEscalation());
+
+		if (Optional.ofNullable(passedVoucherDTO.getEscalatedTo()).isPresent())
+			passedVoucher.setEscalatedTo(passedVoucherDTO.getEscalatedTo());
+
+		if (Optional.ofNullable(passedVoucherDTO.getSupplierId()).isPresent())
+			passedVoucher.setSupplierId(passedVoucherDTO.getSupplierId());
+
+		Date now = new Date();
+		passedVoucher.setFinishedAt(new Timestamp(now.getTime()));
+
+		return new PassedVoucherDTO(passedVoucherDTO.getId());
+	}
+
+}

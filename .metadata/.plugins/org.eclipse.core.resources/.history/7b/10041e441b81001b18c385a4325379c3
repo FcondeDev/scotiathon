@@ -1,0 +1,19 @@
+package com.scotiathon.voucher.service.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.scotiathon.voucher.entity.FailedVoucher;
+import com.scotiathon.voucher.service.GenerateReport;
+
+@Service
+public class GenerateReportToCSV implements GenerateReport {
+
+	@Override
+	public void generateFailureReport(List<FailedVoucher> failedVouchers) {
+		// TODO Auto-generated method stub
+
+	}
+
+}

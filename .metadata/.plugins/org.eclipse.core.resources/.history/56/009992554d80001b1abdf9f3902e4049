@@ -1,0 +1,5 @@
+package com.scotiathon.voucher.validation;
+
+public enum VoucherSource {
+
+}

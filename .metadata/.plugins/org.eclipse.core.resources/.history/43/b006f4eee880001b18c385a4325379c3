@@ -1,0 +1,21 @@
+package com.scotiathon.client.service;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.scotiathon.client.dto.ClientDTO;
+import com.scotiathon.client.dto.LogInDTO;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public interface ClientService {
+
+	public ClientDTO getClientByScotiaId(String scotiaId);
+
+	public LogInDTO login(ClientDTO clientDTO);
+
+}

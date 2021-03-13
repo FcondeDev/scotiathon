@@ -1,0 +1,28 @@
+package com.scotiathon.auth.dto;
+
+import java.util.Date;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class ClientDTO {
+
+	private Long id;
+	private String scotiaId;
+	private String email;
+	private String password;
+	private boolean enabled;
+	private String name;
+	private long failedAttemps;
+	private Date lastDateLoggedIn;
+	private List<RoleDTO> roles;
+
+}

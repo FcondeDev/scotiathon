@@ -1,0 +1,37 @@
+package com.scotiathon.voucher.config;
+
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
+import org.modelmapper.AbstractConverter;
+import org.modelmapper.Converter;
+import org.modelmapper.ModelMapper;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class VoucherConfiguration {
+
+	@Bean
+	public ModelMapper modelMapper() {
+		ModelMapper modelMapper = new ModelMapper();
+		modelMapper.addConverter(stringToDateConverter);
+		return modelMapper;
+	}
+
+	Converter<String, Date> toStringDate = new AbstractConverter<String, Date>() {
+		@Override
+		protected Date convert(String source) {10/30/2017
+
+			DateTimeFormatter format = DateTimeFormatter.ofPattern("MM-dd-yy");
+			DateFormat format = new SimpleDateFormat("yy/M/dd);
+			 Date date = (Date) format.parse(source);
+			 java.sql.Date newdate= new java.sql.Date(date.getTime());
+			 System.out.println(newdate);
+			LocalDate localDate = LocalDate.parse(source, format);
+			return localDate;
+		}
+	};
+
+}

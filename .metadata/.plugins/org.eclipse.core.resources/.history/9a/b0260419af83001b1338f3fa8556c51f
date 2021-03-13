@@ -1,0 +1,28 @@
+package com.scotiathon.voucher.service;
+
+import java.util.List;
+
+import com.scotiathon.voucher.dto.EscalatedToDTO;
+import com.scotiathon.voucher.dto.PassedVoucherDTO;
+import com.scotiathon.voucher.dto.ReasonEscalationDTO;
+import com.scotiathon.voucher.dto.StatusDTO;
+import com.scotiathon.voucher.dto.VoucherResponseDTO;
+
+public interface VoucherAssignmentAndClerkProcessing {
+
+	public List<PassedVoucherDTO> getPassedVouchers();
+
+	public VoucherResponseDTO voucherAssigment(List<PassedVoucherDTO> vouchersToBeAssigned, Long clientId);
+
+	public List<PassedVoucherDTO> getPassedVouchersByclerk(Long clientId);
+
+	public List<StatusDTO> getVoucherStatuses();
+
+	public List<ReasonEscalationDTO> getVoucherReasonsEscalation();
+
+	public List<EscalatedToDTO> getVoucherEscaledTo();
+
+	public PassedVoucherDTO editVoucherInformation(PassedVoucherDTO passedVoucherDTO, Long clerkId);
+
+	public PassedVoucherDTO setStartTime(PassedVoucherDTO passedVoucherDTO, Long clerkId);
+}
